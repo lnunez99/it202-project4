@@ -26,21 +26,20 @@
         .template {
             display: none;
         }
-		.mdc-data-table{
-			visibility: hidden;
-		}
-		
-		th, tr, td {
-			padding: 15px;
-			text-align: center;
-			border: 2px solid blue;
-			border-collapse: collapse;
-			
-		}
-		table {
-			visibility: hidden;
-			border-collapse: collapse;
-		}
+        .mdc-data-table {
+            visibility: hidden;
+        }
+        th, tr, td {
+            padding: 15px;
+            text-align: center;
+            border: 2px solid blue;
+            border-collapse: collapse;
+        }
+		/* Make the table hidden at the start. */
+        table {
+            visibility: hidden;
+            border-collapse: collapse;
+        }
     </style>
 
 </head>
@@ -50,7 +49,7 @@
     <header class="mdc-top-app-bar">
         <div class="mdc-top-app-bar__row">
             <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
-                <span class="mdc-top-app-bar__title">Project 4 Coronavirus</span>
+                <span class="mdc-top-app-bar__title">Project 4: Coronavirus</span>
             </section>
             <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">
                 <button id="page1" class="material-icons mdc-top-app-bar__action-item mdc-icon-button" aria-label="Display Chart">bar_chart</button>
@@ -62,63 +61,67 @@
 
 
     <main class="mdc-top-app-bar--fixed-adjust description">
-		
-		<div id="topPageText">
-			<h1 style="font-family:sans-serif;">Displaying a chart.</h1>
-			<p style="font-family:sans-serif;">Select and submit a maximum of five countries. Then hit the display button. (Confirmed Cases right now)</p>
-		</div>
-	
-		<div id="pageOneDisplay">
-        <input list="countries" id="countryContainer">
-        <datalist id="countries">
-            <option value="">
-        </datalist>
-		<input type="submit" id="Submit">
-		
-		        <div id="data">
-            <!-- Incorrectly copied from MDC so added classes after mdc-list.. -->
-            <ul class="mdc-list mdc-list--two-line mdc-list--avatar-list">
-                <!-- Forgot to add "template" class. -->
-                <li class="template mdc-list-item mdc-ripple-upgraded">
-                    <span class="mdc-list-item__graphic material-icons" aria-hidden="true"></span>
-                    <span class="mdc-list-item__text">
+
+        <div id="topPageText">
+            <h1 style="font-family:sans-serif;">Displaying a chart.</h1>
+            <p style="font-family:sans-serif;">Select and submit a maximum of five countries. Then hit the display button. (Confirmed Cases right now)</p>
+        </div>
+
+		<!-- Datalist and submit button. -->
+        <div id="pageOneDisplay">
+            <input list="countries" id="countryContainer">
+            <datalist id="countries">
+                <option value="">
+            </datalist>
+            <input type="submit" id="Submit">
+			
+			<!-- List items. -->
+            <div id="data">
+                <!-- Incorrectly copied from MDC so added classes after mdc-list.. -->
+                <ul class="mdc-list mdc-list--two-line mdc-list--avatar-list">
+                    <li class="template mdc-list-item mdc-ripple-upgraded">
+                        <span class="mdc-list-item__graphic material-icons" aria-hidden="true"></span>
+                        <span class="mdc-list-item__text">
 			<span class="mdc-list-item__primary-text"></span>
-                    <span class="mdc-list-item__secondary-text"></span>
-                    </span>
-                </li>
-			</ul>
+                        <span class="mdc-list-item__secondary-text"></span>
+                        </span>
+                    </li>
+                </ul>
 
+            </div>
+			<!-- Display Button. -->
+            <div>
+                <button class="mdc-button">
+                    <div class="mdc-button__ripple" id="displayButton"></div>
+                    <span class="mdc-button__label">Display Total Cases</span>
+                </button>
+            </div>
         </div>
-        <div>
-            <button class="mdc-button">
-                <div class="mdc-button__ripple" id="displayButton"></div>
-                <span class="mdc-button__label">Display Total Cases</span>
-            </button>
-        </div>
-		</div>		
-		
-	</main>
+
+    </main>
 
 
-	
-    <div id="curve_chart" style="width: 900px; height: 500px"></div>
-	
-<table id="table">
-  <tr id="Headers">
-    <th>Date</th>
-  </tr>
-</table>
+	<!-- Google Chart. -->    
+	<div id="curve_chart" style="width: 900px; height: 500px"></div>
 
-	
-<canvas id="myChart" width="100" height="100"></canvas>
+	<!-- Data Table. -->
+    <table id="table">
+        <tr id="Headers">
+            <th>Date</th>
+        </tr>
+    </table>
 
+	<!-- Canvas for Chart.js. -->
+    <canvas id="myChart" width="100" height="100"></canvas>
 
 </body>
 
 <script src="Chart.js"></script>
 <script>
 	
-/*-------------------- FUNCTION SECTION --------------------*/
+    /*-------------------- FUNCTION SECTION --------------------*/
+
+	// This modified function was provided at https://www.chartjs.org/docs/latest/developers/updates.html
     function addData(chart, label, data) {
         chart.data.labels.push(label);
         chart.data.datasets.forEach((dataset) => {
@@ -126,7 +129,7 @@
         });
         chart.update();
     }
-
+	// This modified function was provided at https://www.chartjs.org/docs/latest/developers/updates.html
     function removeData(chart) {
         chart.data.labels.pop();
         chart.data.datasets.forEach((dataset) => {
@@ -134,7 +137,8 @@
         });
         chart.update();
     }
-	
+	// This function was provided at https://www.chartjs.org/docs/latest/
+	// I modified it to take two arrays, remove the default data, and then add the data from said arrays.
     const displayData = (context, numbersArray, countriesArray) => {
         let myChart = new Chart(context, {
             type: 'bar',
@@ -158,259 +162,294 @@
                 }
             }
         });
+		
+		// Clear the values and labels.
         removeData(myChart);
+		// Add new data.
         for(let i = 0; i < numbersArray.length; i++) {
             addData(myChart, countriesArray[i], numbersArray[i]);
         }
     }
-	
-	
-	const buildTable = (countriesArray, numbersArray) => {
-		// Build Table
-		let H = document.querySelector(".mdc-data-table__header-cell--numeric").cloneNode(true);
-	}
-	
-	
-	/*-------------------- END FUNCTION SECTION --------------------*/
-	
-	
-	// Declare variables.
+
+    /*-------------------- END FUNCTION SECTION --------------------*/
+    // Declare variables.
     let canvas = document.querySelector('#myChart');
-	
-	let ctx = canvas.getContext('2d');
+    let ctx = canvas.getContext('2d');
     let countryData; // JSON object.
     let countryList = []; // List of selected countries.
-	
-	// Data storage for first page.
-    let pageOneTotalCasesList = []; 
+    // Data storage for first page.
+    let pageOneTotalCasesList = [];
     let pageOneTotalConfirmed = 0;
-
-	// Data storage for second page.
-	let datesList = [];
-	let daysCases = [];
-	let length = 0; // Length of a country's 'dates' array.
-	
+    // Data storage for second page.
+    let datesList = [];
+    let daysCases = [];
+    let length = 0; // Length of a country's 'dates' array.
     // Section to fill the list with countries.
     let apiEndPoint = "https://pomber.github.io/covid19/timeseries.json";
+    let table = document.querySelector("#table");
+    let welcomeText = document.querySelector(".description");
+    /*-------------------- FETCH AND BUILD --------------------*/
 	
-	let table = document.querySelector("#table");
-	let welcomeText = document.querySelector(".description");
-
 	
-	/*-------------------- FETCH AND BUILD --------------------*/
-	/*-------------------- GOOGLE --------------------*/
-      google.charts.load('current', {'packages':['corechart']});
-//       google.charts.setOnLoadCallback(drawChart);
-      drawChart = (rowData, countryList) =>{
-		 
-      	let data = new google.visualization.DataTable();
-		  
-	  data.addColumn("string", "X");
-      for(let i = 0; i < countryList.length; i++)
-	  {
-		  data.addColumn('number', countryList[i]);
-	  }
-
-		 
-		  data.addRows(rowData);
-		 
+    /*-------------------- GOOGLE --------------------*/
+	// This modified function was provided at https://developers.google.com/chart/interactive/docs/gallery/linechart#creating-material-line-charts.
+	// Inspiration was drawn from Professor Hayes' Panopto video, but I adapted it to the purposes of this project. 
+    google.charts.load('current', {
+        'packages': ['corechart']
+    });
+    drawChart = (rowData, countryList) => 
+	{
+        let data = new google.visualization.DataTable();
+		
+		// Add a 'default' string to match the # of rows.
+        data.addColumn("string", "X");
+		
+		// Loop through the countryList and append a column to the data element where the value of the col. is a country.
+        for(let i = 0; i < countryList.length; i++) {
+            data.addColumn('number', countryList[i]);
+        }
+		
+		// Since every element in the rowData array is a n-tuple (where n is the #of countries), looping through the array is sufficient.
+        data.addRows(rowData);
+		
         let options = {
-          title: 'Company Performance',
-          curveType: 'function',
-          legend: { position: 'bottom' }
+            title: 'Number of Confirmed Coronavirus Cases Per Day',
+            curveType: 'function',
+            legend: {
+                position: 'bottom'
+            }
         };
-
+		
         let chart = new google.visualization.LineChart(document.querySelector('#curve_chart'));
-
         chart.draw(data, options);
-      }
-	/*-------------------- GOOGLE --------------------*/
+    }
+    /*-------------------- GOOGLE --------------------*/
 	
-	fetch(apiEndPoint).then(response => {
+	// Fetch data.
+    fetch(apiEndPoint).then(response => {
         return response.json()
     }).then(json => {
         // Turn countryData = json object.
         countryData = json;
-        //             console.log(countryData);
+		
         // Find the node that contains the list.
         let theList = document.querySelector("#countries");
         //             console.log(theList);
         // Iterate through the json object. 'item' = country name.
         for(item in countryData) {
-            // Clone the item inside the list.
-            let opcione = document.createElement('option');
-            opcione.value = item;
-            theList.appendChild(opcione);
+            
+			// Clone the item inside the list.
+            
+			let opcione = document.createElement('option');
+            
+			opcione.value = item;
+            
+			theList.appendChild(opcione);
         }
 		
-		let topRow = document.querySelector("#TopRow");
+		
+        let topRow = document.querySelector("#TopRow");
+        
 		let table = document.querySelector("#Tbl");
         // Build the list that displays on the page while growing the arrays needed to store data.
+         
         // Event listener for submit button.
         let submitButton = document.querySelector("#Submit");
         submitButton.addEventListener("click", event => {
-            let textBox = document.querySelector("#countryContainer");
-            let chosenCountry = textBox.value;
-            let chosenCountryDeaths = 0;
 			
-            if(chosenCountry != "") {
-				length = countryData[chosenCountry].length;
+			// Grab the selected country.
+            let textBox = document.querySelector("#countryContainer");
+            
+			let chosenCountry = textBox.value;
+            
+			let chosenCountryDeaths = 0;
+            
+			if(chosenCountry != "") 
+			{
+                length = countryData[chosenCountry].length;
+                
 				console.log("Length is " + length);
+				
                 // Clone template
                 let clone = document.querySelector("div#data li.template").cloneNode(true);
+				
                 // Add country to array after checking if it is there or not.
                 let boolean = countryList.includes(chosenCountry);
-                if(!boolean) {
+                
+				if(!boolean)
+				{
                     countryList.push(chosenCountry);
-										
+					
                     // Remove template class from clone.
-                    // 
                     clone.classList.remove("template");
+					
                     // Update the value
                     clone.querySelector(".mdc-list-item__primary-text").textContent = chosenCountry;
                     clone.querySelector(".mdc-list-item__secondary-text").textContent = chosenCountry + "'s most recent data.";
+					
                     // Append to list.
                     document.querySelector("div#data ul.mdc-list").appendChild(clone);
-                    for(item of countryData[chosenCountry]) {
-                        pageOneTotalConfirmed = pageOneTotalConfirmed + item['confirmed'];
+					
+					// Tally up the total number of cases.
+                    for(item of countryData[chosenCountry]) 
+					{
+						pageOneTotalConfirmed = pageOneTotalConfirmed + item['confirmed'];
                     }
 					
-					
+					// Add to the list.
                     pageOneTotalCasesList.push(pageOneTotalConfirmed);
-					
-
-				}
+                }
             }
         })
-		
 	/*-------------------- DISPLAY CHART --------------------*/
+		
         let displayButton = document.querySelector("#displayButton");
-        displayButton.addEventListener("click", event => {
-            console.log('display');
-            console.log(pageOneTotalCasesList);
-            displayData(canvas, pageOneTotalCasesList, countryList);
+        
+		displayButton.addEventListener("click", event => {            
+			displayData(canvas, pageOneTotalCasesList, countryList);
         })
     })
-
-	
-	
-	
-	
-	
-	
-	
-	
-
-	/*-------------------- NAVIGATION --------------------*/
-	
-	let pageOneControls = document.querySelector("#pageOneDisplay");
+    /*-------------------- NAVIGATION --------------------*/
+    let pageOneControls = document.querySelector("#pageOneDisplay");
+    
 	let topPageText = document.querySelector("#topPageText");
-	
+    
 	let p1Button = document.querySelector("#page1");
+    
 	let p2Button = document.querySelector("#page2");
+    
 	let p3Button = document.querySelector("#page3");
+    
 	let headerArray = [];
+    
 	let gChart = document.querySelector("#curve_chart");
+    
 	gChart.style.display = "none";
+    
 	
-	p1Button.addEventListener("click", event => { 
+	p1Button.addEventListener("click", event => {
+     
 		gChart.style.display = "none";
+        
 		canvas.style.display = "block";
+        
 		pageOneControls.style.display = "block";
+        
 		pageOneControls.style.visibility = "visible";
+        
 		table.style.display = "none";
+        
 		topPageText.lastElementChild.textContent = "Select and submit a maximum of five countries. Then hit the display button. (Confirmed Cases right now).";
+        
 		topPageText.firstElementChild.textContent = "Displaying a chart."
+        
 		displayData(canvas, pageOneTotalCasesList, countryList);
-	})
-	
-	p2Button.addEventListener("click", event => { 
+    })
+    
+	p2Button.addEventListener("click", event => {
+    
 		// Clear canvas and display the table.
 		canvas.style.display = "none";
-		ctx.clearRect(0,0, canvas.width, canvas.width);
-		
-		// Update screen.
+        
+		ctx.clearRect(0, 0, canvas.width, canvas.width);
+        
+		// Update screen
 		gChart.style.display = "none";
+        
+		
 		pageOneControls.style.display = "none";
+        
 		pageOneControls.style.visibility = "hidden";
+        
 		topPageText.lastElementChild.textContent = "Showing your each of your countries' confirmed cases up to the most recent day.";
+        
 		topPageText.firstElementChild.textContent = "Displaying a data table."
-
+        
 		let header = document.querySelector("#Headers");
-		
-		//let bool2 = headerArray.includes(country);
-		for (country of countryList)
+        
+        for(country of countryList) 
 		{
-			let bool2 = headerArray.includes(country);
-			if (!bool2)
-			{
-				console.log(country);
+            let bool2 = headerArray.includes(country);
+            
+			if(!bool2) {
+				
 				let newH = document.createElement("th");
+                
 				newH.textContent = country;
+                
 				header.appendChild(newH);
+                
 				headerArray.push(country);
-			}
-		}
-		
-		for(let i = 0; i < length; i++)
-		{
+            }
+        }
+        for(let i = 0; i < length; i++) {
+            
 			let newR = document.createElement("tr");
+            
 			let newTD = document.createElement("td");
+            
 			newTD.textContent = countryData["Afghanistan"][i]['date'];
+            
 			newR.appendChild(newTD);
-			
-		for(country of countryList)
-		{
-			
-			console.log("country is " + country);
-			console.log("country cases are " + countryData[country][i]['confirmed']);
-
-			let otherTD = document.createElement("td");
-			otherTD.textContent = countryData[country][i]['confirmed'];
-			newR.appendChild(otherTD);
-		}
-			table.appendChild(newR);
-
-		}
+            
+			for(country of countryList) 
+			{
+                
+				let otherTD = document.createElement("td");
+                
+				otherTD.textContent = countryData[country][i]['confirmed'];
+                
+				newR.appendChild(otherTD);
+            }
+            table.appendChild(newR);
+        }
 		
-		// Show table
-		table.style.visibility = "visible";
+        // Show table
+        table.style.visibility = "visible";
+        
 		table.style.display = "block";
-
-		
-	})
+    })
 	
-	p3Button.addEventListener("click", event => { 
-		console.log("WANNA BE A MILLIONAIRE");
+    p3Button.addEventListener("click", event => {
+        
 		// Update screen.
-		canvas.style.display = "none";
-		ctx.clearRect(0,0, canvas.width, canvas.width);
+        canvas.style.display = "none";
+        ctx.clearRect(0, 0, canvas.width, canvas.width);
+        
 		gChart.style.display = "block";
+        
 		table.style.display = "none";
+        
 		pageOneControls.style.display = "none";
+        
 		pageOneControls.style.visibility = "hidden";
+        
 		topPageText.lastElementChild.textContent = "Showing your each of your countries' confirmed cases up to the most recent day.";
+        
 		topPageText.firstElementChild.textContent = "Displaying a Google Chart."
+        
 		let dataArray = [];
-	
-		for(let i = 0; i < length; i++){
-				let thisDay = [];
-				thisDay.push(countryData['Italy'][i]['date']);
-			for(country of countryList){
+        for(let i = 0; i < length; i++) {
+            
+			let thisDay = [];
+            
+			thisDay.push(countryData['Italy'][i]['date']);
+            
+			for(country of countryList) {
+                
 				let date = countryData[country][i]['date'];
+                
 				let cases = countryData[country][i]['confirmed'];
+                
 				console.log('Grabbing ' + country + 'on' + date + 'with ' + cases + 'cases.');
+                
 				thisDay.push(cases);
-			}
-			dataArray.push(thisDay);
-		}
-	
-		console.log(dataArray);
-		drawChart(dataArray, countryList);
-	
-	})
-
-	
+            }
+            dataArray.push(thisDay);
+        }
+        console.log(dataArray);
+        drawChart(dataArray, countryList);
+    })
 </script>
 
 </html>
