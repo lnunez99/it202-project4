@@ -25,7 +25,17 @@
         .template {
             display: none;
         }
-				
+		.mdc-data-table{
+			visibility: hidden;
+		}
+			
+		tr, th, td {
+  			padding: 15px;
+			text-align: center;
+		}
+		table {
+			visibility: hidden;
+		}
     </style>
 
 </head>
@@ -47,14 +57,12 @@
 
 
 
-    <main class="mdc-top-app-bar--fixed-adjust">
-	</main>
-
-
+    <main class="description">
         <h1 style="font-family:sans-serif;">Hello and welcome.</h1>
 		<p style="font-family:sans-serif;">Select and submit a maximum of five countries. Then hit the display button. (Confirmed Cases right now)</p>
 		<p style="font-family:sans-serif;">You can use the buttons on the top right to show a data table, or a Google chart. (Confirmed Cases right now)</p>
-        
+		<p style="font-family:sans-serif;">This is the chart page.</p>
+
 	
 	<!-- Give items an id to query -->
         <input list="countries" id="countryContainer">
@@ -63,41 +71,6 @@
         </datalist>
 		<input type="submit" id="Submit">
 		
-	
-	
-<div class="mdc-data-table">
-  <table class="mdc-data-table__table" aria-label="Dessert calories">
-    <thead>
-      <tr class="mdc-data-table__header-row">
-        <th class="mdc-data-table__header-cell" role="columnheader" scope="col">Date </th>
-        <th class="mdc-data-table__header-cell mdc-data-table__header-cell--numeric" role="columnheader" scope="col">Carbs (g)</th>
-        <th class="mdc-data-table__header-cell mdc-data-table__header-cell--numeric" role="columnheader" scope="col">Protein (g)</th>
-        <th class="mdc-data-table__header-cell" role="columnheader" scope="col">Comments</th>
-      </tr>
-    </thead>
-    <tbody class="mdc-data-table__content">
-      <tr class="mdc-data-table__row">
-        <td class="mdc-data-table__cell">Frozen yogurt</td>
-        <td class="mdc-data-table__cell mdc-data-table__cell--numeric">24</td>
-        <td class="mdc-data-table__cell mdc-data-table__cell--numeric">4.0</td>
-        <td class="mdc-data-table__cell">Super tasty</td>
-      </tr>
-      <tr class="mdc-data-table__row">
-        <td class="mdc-data-table__cell">Ice cream sandwich</td>
-        <td class="mdc-data-table__cell mdc-data-table__cell--numeric">37</td>
-        <td class="mdc-data-table__cell mdc-data-table__cell--numeric">4.33333333333</td>
-        <td class="mdc-data-table__cell">I like ice cream more</td>
-      </tr>
-      <tr class="mdc-data-table__row">
-        <td class="mdc-data-table__cell">Eclair</td>
-        <td class="mdc-data-table__cell mdc-data-table__cell--numeric">24</td>
-        <td class="mdc-data-table__cell mdc-data-table__cell--numeric">6.0</td>
-        <td class="mdc-data-table__cell">New filing flavor</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-	
 		        <div id="data">
             <!-- Incorrectly copied from MDC so added classes after mdc-list.. -->
             <ul class="mdc-list mdc-list--two-line mdc-list--avatar-list">
@@ -118,7 +91,20 @@
                 <span class="mdc-button__label">Display Total Cases</span>
             </button>
         </div>
-        <canvas id="myChart" width="100" height="100"></canvas>
+	</main>
+
+
+	
+
+	
+<table id="table">
+  <tr id="Headers">
+    <th>Date</th>
+  </tr>
+</table>
+
+	
+<canvas id="myChart" width="100" height="100"></canvas>
 
 
 </body>
@@ -144,7 +130,7 @@
     }
 	
     const displayData = (context, numbersArray, countriesArray) => {
-        var myChart = new Chart(context, {
+        let myChart = new Chart(context, {
             type: 'bar',
             data: {
                 labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
@@ -173,20 +159,36 @@
     }
 	
 	
+	const buildTable = (countriesArray, numbersArray) => {
+		// Build Table
+		let H = document.querySelector(".mdc-data-table__header-cell--numeric").cloneNode(true);
+	}
+	
+	
 	/*-------------------- END FUNCTION SECTION --------------------*/
 	
 	/*-------------------- PAGE ONE --------------------*/
 	/*-------------------- PAGE ONE --------------------*/
 	
 	// Declare variables.
-    let ctx = document.querySelector('#myChart');
+    let canvas = document.querySelector('#myChart');
+	
+	let ctx = canvas.getContext('2d');
     let countryData;
     let countryList = [];
-    let deathsList = [];
-    let totalDeaths = 0;
+    let pageOneTotalCasesList = [];
+    let pageOneTotalConfirmed = 0;
+
+	let datesList = [];
+	let daysCases = [];
 	
+	let length = 0;
     // Section to fill the list with countries.
     let apiEndPoint = "https://pomber.github.io/covid19/timeseries.json";
+	
+	let table = document.querySelector("#table");
+	let welcomeText = document.querySelector(".description");
+
 	
 	/*-------------------- FETCH AND BUILD --------------------*/
     fetch(apiEndPoint).then(response => {
@@ -206,6 +208,8 @@
             theList.appendChild(opcione);
         }
 		
+		let topRow = document.querySelector("#TopRow");
+		let table = document.querySelector("#Tbl");
         // Build the list that displays on the page while growing the arrays needed to store data.
         // Event listener for submit button.
         let submitButton = document.querySelector("#Submit");
@@ -213,13 +217,17 @@
             let textBox = document.querySelector("#countryContainer");
             let chosenCountry = textBox.value;
             let chosenCountryDeaths = 0;
+			
             if(chosenCountry != "") {
+				length = countryData[chosenCountry].length;
+				console.log("Length is " + length);
                 // Clone template
                 let clone = document.querySelector("div#data li.template").cloneNode(true);
                 // Add country to array after checking if it is there or not.
                 let boolean = countryList.includes(chosenCountry);
                 if(!boolean) {
                     countryList.push(chosenCountry);
+										
                     // Remove template class from clone.
                     // 
                     clone.classList.remove("template");
@@ -229,10 +237,14 @@
                     // Append to list.
                     document.querySelector("div#data ul.mdc-list").appendChild(clone);
                     for(item of countryData[chosenCountry]) {
-                        totalDeaths = totalDeaths + item['confirmed'];
+                        pageOneTotalConfirmed = pageOneTotalConfirmed + item['confirmed'];
                     }
-                    deathsList.push(totalDeaths);
-                }
+					
+					
+                    pageOneTotalCasesList.push(pageOneTotalConfirmed);
+					
+
+				}
             }
         })
 		
@@ -240,8 +252,8 @@
         let displayButton = document.querySelector("#displayButton");
         displayButton.addEventListener("click", event => {
             console.log('display');
-            console.log(deathsList);
-            displayData(ctx, deathsList, countryList);
+            console.log(pageOneTotalCasesList);
+            displayData(canvas, pageOneTotalCasesList, countryList);
         })
     })
 	/*-------------------- END PAGE ONE --------------------*/
@@ -253,14 +265,54 @@
 	
 
 	/*-------------------- NAVIGATION --------------------*/
+	
 	let p1Button = document.querySelector("#page1");
 	p1Button.addEventListener("click", event => { console.log("SO");})
+	
 	let p2Button = document.querySelector("#page2");
 	p2Button.addEventListener("click", event => { 
 		console.log("YOU");
-	let table = document.querySelector(".mdc-data-table")
-		table.style.visibility = "hidden";
+		
+		// Clear canvas and display the table.
+		ctx.clearRect(0,0, canvas.width, canvas.width);
+	 	welcomeText.style.visibility = "hidden";
+		
+		let header = document.querySelector("#Headers");
+		for (country of countryList)
+		{
+			console.log(country);
+			let newH = document.createElement("th");
+			newH.textContent = country;
+			header.appendChild(newH);
+		}
+		
+		for(let i = 0; i < length; i++)
+		{
+			let newR = document.createElement("tr");
+// 			console.log(countryData["Afghanistan"][i]['date']);
+			let newTD = document.createElement("td");
+			newTD.textContent = countryData["Afghanistan"][i]['date'];
+			newR.appendChild(newTD);
+			
+		for(country of countryList)
+		{
+			console.log("country is " + country);
+			console.log("country cases are " + countryData[country][i]['confirmed']);
+
+			let otherTD = document.createElement("td");
+			otherTD.textContent = countryData[country][i]['confirmed'];
+			newR.appendChild(otherTD);
+		}
+			table.appendChild(newR);
+
+		}
+		
+		// Show table
+		table.style.visibility = "visible";
+
+		
 	})
+	
 	let p3Button = document.querySelector("#page3");
 	p3Button.addEventListener("click", event => { console.log("WANNA BE A MILLIONAIRE");})
 
