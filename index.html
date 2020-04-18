@@ -28,13 +28,17 @@
 		.mdc-data-table{
 			visibility: hidden;
 		}
-			
-		tr, th, td {
-  			padding: 15px;
+		
+		th, tr, td {
+			padding: 15px;
 			text-align: center;
+			border: 2px solid blue;
+			border-collapse: collapse;
+			
 		}
 		table {
 			visibility: hidden;
+			border-collapse: collapse;
 		}
     </style>
 
@@ -57,14 +61,14 @@
 
 
 
-    <main class="description">
-        <h1 style="font-family:sans-serif;">Hello and welcome.</h1>
-		<p style="font-family:sans-serif;">Select and submit a maximum of five countries. Then hit the display button. (Confirmed Cases right now)</p>
-		<p style="font-family:sans-serif;">You can use the buttons on the top right to show a data table, or a Google chart. (Confirmed Cases right now)</p>
-		<p style="font-family:sans-serif;">This is the chart page.</p>
-
+    <main class="mdc-top-app-bar--fixed-adjust description">
+		
+		<div id="topPageText">
+			<h1 style="font-family:sans-serif;">Displaying a chart.</h1>
+			<p style="font-family:sans-serif;">Select and submit a maximum of five countries. Then hit the display button. (Confirmed Cases right now)</p>
+		</div>
 	
-	<!-- Give items an id to query -->
+		<div id="pageOneDisplay">
         <input list="countries" id="countryContainer">
         <datalist id="countries">
             <option value="">
@@ -91,6 +95,8 @@
                 <span class="mdc-button__label">Display Total Cases</span>
             </button>
         </div>
+		</div>		
+		
 	</main>
 
 
@@ -174,15 +180,18 @@
     let canvas = document.querySelector('#myChart');
 	
 	let ctx = canvas.getContext('2d');
-    let countryData;
-    let countryList = [];
-    let pageOneTotalCasesList = [];
+    let countryData; // JSON object.
+    let countryList = []; // List of selected countries.
+	
+	// Data storage for first page.
+    let pageOneTotalCasesList = []; 
     let pageOneTotalConfirmed = 0;
 
+	// Data storage for second page.
 	let datesList = [];
 	let daysCases = [];
+	let length = 0; // Length of a country's 'dates' array.
 	
-	let length = 0;
     // Section to fill the list with countries.
     let apiEndPoint = "https://pomber.github.io/covid19/timeseries.json";
 	
@@ -266,36 +275,60 @@
 
 	/*-------------------- NAVIGATION --------------------*/
 	
-	let p1Button = document.querySelector("#page1");
-	p1Button.addEventListener("click", event => { console.log("SO");})
+	let pageOneControls = document.querySelector("#pageOneDisplay");
+	let topPageText = document.querySelector("#topPageText");
 	
+	let p1Button = document.querySelector("#page1");
 	let p2Button = document.querySelector("#page2");
+	let p3Button = document.querySelector("#page3");
+	let headerArray = [];
+	p1Button.addEventListener("click", event => { 
+		canvas.style.display = "block";
+		pageOneControls.style.display = "block";
+		pageOneControls.style.visibility = "visible";
+		table.style.display = "none";
+		topPageText.lastElementChild.textContent = "Select and submit a maximum of five countries. Then hit the display button. (Confirmed Cases right now).";
+		topPageText.firstElementChild.textContent = "Displaying a chart."
+		displayData(canvas, pageOneTotalCasesList, countryList);
+	})
+	
 	p2Button.addEventListener("click", event => { 
-		console.log("YOU");
-		
 		// Clear canvas and display the table.
+		canvas.style.display = "none";
 		ctx.clearRect(0,0, canvas.width, canvas.width);
-	 	welcomeText.style.visibility = "hidden";
 		
+		// Update screen.
+		pageOneControls.style.display = "none";
+		pageOneControls.style.visibility = "hidden";
+		topPageText.lastElementChild.textContent = "Showing your each of your countries' confirmed cases.";
+		topPageText.firstElementChild.textContent = "Displaying a data table."
+
 		let header = document.querySelector("#Headers");
+		
+		//let bool2 = headerArray.includes(country);
 		for (country of countryList)
 		{
-			console.log(country);
-			let newH = document.createElement("th");
-			newH.textContent = country;
-			header.appendChild(newH);
+			let bool2 = headerArray.includes(country);
+			if (!bool2)
+			{
+				console.log(country);
+				let newH = document.createElement("th");
+				newH.textContent = country;
+				header.appendChild(newH);
+				headerArray.push(country);
+			}
 		}
 		
 		for(let i = 0; i < length; i++)
 		{
 			let newR = document.createElement("tr");
-// 			console.log(countryData["Afghanistan"][i]['date']);
 			let newTD = document.createElement("td");
 			newTD.textContent = countryData["Afghanistan"][i]['date'];
 			newR.appendChild(newTD);
 			
 		for(country of countryList)
 		{
+			
 			console.log("country is " + country);
 			console.log("country cases are " + countryData[country][i]['confirmed']);
 
@@ -309,11 +342,11 @@
 		
 		// Show table
 		table.style.visibility = "visible";
+		table.style.display = "block";
 
 		
 	})
 	
-	let p3Button = document.querySelector("#page3");
 	p3Button.addEventListener("click", event => { console.log("WANNA BE A MILLIONAIRE");})
 
 	
