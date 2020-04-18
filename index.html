@@ -331,7 +331,10 @@
      
 		gChart.style.display = "none";
         
-		canvas.style.display = "block";
+		if (countryList.length != 0)
+		{
+			canvas.style.display = "block";
+		}
         
 		pageOneControls.style.display = "block";
         
