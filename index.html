@@ -7,9 +7,9 @@
     <title>repl.it</title>
     <link href="https://unpkg.com/material-components-web@v4.0.0/dist/material-components-web.min.css" rel="stylesheet">
     <script src="https://unpkg.com/material-components-web@v4.0.0/dist/material-components-web.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <link rel="stylesheet" href="https://fonts.apis.com/icon?family=Material+Icons">
-	
+
     <style>
         :root {
             --mdc-theme-primary: navy;
@@ -61,12 +61,11 @@
     </header>
 
 
-
     <main class="mdc-top-app-bar--fixed-adjust description">
 		
 		<div id="topPageText">
 			<h1 style="font-family:sans-serif;">Displaying a chart.</h1>
-			<p style="font-family:sans-serif;">Select and submit a maximum of five countries. Then hit the display button. (Confirmed Cases right now). Note that the table and chart will refresh after hitting the display button.</p>
+			<p style="font-family:sans-serif;">Select and submit a maximum of five countries. Then hit the display button. (Confirmed Cases right now)</p>
 		</div>
 	
 		<div id="pageOneDisplay">
@@ -102,15 +101,13 @@
 
 
 	
-
+    <div id="curve_chart" style="width: 900px; height: 500px"></div>
 	
 <table id="table">
   <tr id="Headers">
     <th>Date</th>
   </tr>
 </table>
-	
-    <div id="curve_chart" style="width: 900px; height: 500px"></div>
 
 	
 <canvas id="myChart" width="100" height="100"></canvas>
@@ -119,12 +116,7 @@
 </body>
 
 <script src="Chart.js"></script>
-<script type = "text/javascript">
-
-	.charts.load('current', {'packages':['corechart']});
-
-
-
+<script>
 	
 /*-------------------- FUNCTION SECTION --------------------*/
     function addData(chart, label, data) {
@@ -180,23 +172,8 @@
 	
 	
 	/*-------------------- END FUNCTION SECTION --------------------*/
-	/*-------------------- GOOGLE CHART FUNCTION SECTION --------------------*/
-    drawChart = (dataArray) =>
-	{
-		let data = google.visualization.arrayToDataTable(dataArray);
-
-	let options = {
-	  title: 'Confirmed Cases in Countries',
-	  curveType: 'function',
-	  legend: { position: 'bottom' }
-	};
-
-	let chart = new google.visualization.LineChart(document.querySelector('#curve_chart'));
-
-	chart.draw(data, options);
-}
-	/*-------------------- END GOOGLE CHART FUNCTION SECTION --------------------*/
-
+	
+	
 	// Declare variables.
     let canvas = document.querySelector('#myChart');
 	
@@ -213,19 +190,48 @@
 	let daysCases = [];
 	let length = 0; // Length of a country's 'dates' array.
 	
-	/*-------------------- FETCH AND BUILD --------------------*/
     // Section to fill the list with countries.
     let apiEndPoint = "https://pomber.github.io/covid19/timeseries.json";
 	
 	let table = document.querySelector("#table");
 	let welcomeText = document.querySelector(".description");
+
 	
+	/*-------------------- FETCH AND BUILD --------------------*/
+	/*-------------------- GOOGLE --------------------*/
+      google.charts.load('current', {'packages':['corechart']});
+//       google.charts.setOnLoadCallback(drawChart);
+      drawChart = (rowData, countryList) =>{
+		 
+      	let data = new google.visualization.DataTable();
+		  
+	  data.addColumn("string", "X");
+      for(let i = 0; i < countryList.length; i++)
+	  {
+		  data.addColumn('number', countryList[i]);
+	  }
+
+		 
+		  data.addRows(rowData);
+		 
+        let options = {
+          title: 'Company Performance',
+          curveType: 'function',
+          legend: { position: 'bottom' }
+        };
+
+        let chart = new google.visualization.LineChart(document.querySelector('#curve_chart'));
+
+        chart.draw(data, options);
+      }
+	/*-------------------- GOOGLE --------------------*/
 	
-    fetch(apiEndPoint).then(response => {
+	fetch(apiEndPoint).then(response => {
         return response.json()
     }).then(json => {
         // Turn countryData = json object.
         countryData = json;
+        //             console.log(countryData);
         // Find the node that contains the list.
         let theList = document.querySelector("#countries");
         //             console.log(theList);
@@ -239,7 +245,6 @@
 		
 		let topRow = document.querySelector("#TopRow");
 		let table = document.querySelector("#Tbl");
-		
         // Build the list that displays on the page while growing the arrays needed to store data.
         // Event listener for submit button.
         let submitButton = document.querySelector("#Submit");
@@ -274,10 +279,6 @@
                     pageOneTotalCasesList.push(pageOneTotalConfirmed);
 					
 
-					
-					
-					
-
 				}
             }
         })
@@ -288,36 +289,38 @@
             console.log('display');
             console.log(pageOneTotalCasesList);
             displayData(canvas, pageOneTotalCasesList, countryList);
-			
-			
-			
         })
     })
+
+	
+	
+	
+	
+	
+	
+	
 	
 
 	/*-------------------- NAVIGATION --------------------*/
-// 	drawChart();
+	
 	let pageOneControls = document.querySelector("#pageOneDisplay");
 	let topPageText = document.querySelector("#topPageText");
-	
-	let p1OriginalText = "Select and submit a maximum of five countries. Then hit the display button. (Confirmed Cases right now). Note that the table and chart will refresh after hitting the display button.";
-	let p1H1OriginalText = "Displaying a chart.";
-	
-	let p2P = "Showing your each of your countries' confirmed cases.";
-	let p2H1 = "Displaying a data table."
 	
 	let p1Button = document.querySelector("#page1");
 	let p2Button = document.querySelector("#page2");
 	let p3Button = document.querySelector("#page3");
 	let headerArray = [];
+	let gChart = document.querySelector("#curve_chart");
+	gChart.style.display = "none";
 	
 	p1Button.addEventListener("click", event => { 
+		gChart.style.display = "none";
 		canvas.style.display = "block";
 		pageOneControls.style.display = "block";
 		pageOneControls.style.visibility = "visible";
 		table.style.display = "none";
-		topPageText.lastElementChild.textContent = p1OriginalText;
-		topPageText.firstElementChild.textContent = p1H1OriginalText;
+		topPageText.lastElementChild.textContent = "Select and submit a maximum of five countries. Then hit the display button. (Confirmed Cases right now).";
+		topPageText.firstElementChild.textContent = "Displaying a chart."
 		displayData(canvas, pageOneTotalCasesList, countryList);
 	})
 	
@@ -327,10 +330,11 @@
 		ctx.clearRect(0,0, canvas.width, canvas.width);
 		
 		// Update screen.
+		gChart.style.display = "none";
 		pageOneControls.style.display = "none";
 		pageOneControls.style.visibility = "hidden";
-		topPageText.lastElementChild.textContent = p2P;
-		topPageText.firstElementChild.textContent = p2H1;
+		topPageText.lastElementChild.textContent = "Showing your each of your countries' confirmed cases up to the most recent day.";
+		topPageText.firstElementChild.textContent = "Displaying a data table."
 
 		let header = document.querySelector("#Headers");
 		
@@ -344,10 +348,8 @@
 				let newH = document.createElement("th");
 				newH.textContent = country;
 				header.appendChild(newH);
-// 				headerArray.push(country);
+				headerArray.push(country);
 			}
-		headerArray.push(country);
-
 		}
 		
 		for(let i = 0; i < length; i++)
@@ -357,18 +359,16 @@
 			newTD.textContent = countryData["Afghanistan"][i]['date'];
 			newR.appendChild(newTD);
 			
-			for(country of countryList)
-			{
-				let bool2 = headerArray.includes(country);
+		for(country of countryList)
+		{
+			
+			console.log("country is " + country);
+			console.log("country cases are " + countryData[country][i]['confirmed']);
 
-				console.log("country is " + country);
-				console.log("country cases are " + countryData[country][i]['confirmed']);
-
-				let otherTD = document.createElement("td");
-				otherTD.textContent = countryData[country][i]['confirmed'];
-				newR.appendChild(otherTD);
-
-			}
+			let otherTD = document.createElement("td");
+			otherTD.textContent = countryData[country][i]['confirmed'];
+			newR.appendChild(otherTD);
+		}
 			table.appendChild(newR);
 
 		}
@@ -382,30 +382,35 @@
 	
 	p3Button.addEventListener("click", event => { 
 		console.log("WANNA BE A MILLIONAIRE");
-		let dataArray = [["Date", "Confirmed Cases"]];
-		
-
-  		getData = (countryList, countryData, dataArray) =>
-		{
-			for(country of countryList)
-			{
-				for(let i = 0; i < length; i++)
-				{
-					console.log("country is " + country);
-					console.log("country caseson day" + countryData[country][i]['date'] + " are " + countryData[country][i]['confirmed']);
-					let date = countryData[country][i]['date'];
-					let confirmed = countryData[country][i]['confirmed'];
-					dataArray.push([date, confirmed]);
-				}
+		// Update screen.
+		canvas.style.display = "none";
+		ctx.clearRect(0,0, canvas.width, canvas.width);
+		gChart.style.display = "block";
+		table.style.display = "none";
+		pageOneControls.style.display = "none";
+		pageOneControls.style.visibility = "hidden";
+		topPageText.lastElementChild.textContent = "Showing your each of your countries' confirmed cases up to the most recent day.";
+		topPageText.firstElementChild.textContent = "Displaying a Google Chart."
+		let dataArray = [];
+	
+		for(let i = 0; i < length; i++){
+				let thisDay = [];
+				thisDay.push(countryData['Italy'][i]['date']);
+			for(country of countryList){
+				let date = countryData[country][i]['date'];
+				let cases = countryData[country][i]['confirmed'];
+				console.log('Grabbing ' + country + 'on' + date + 'with ' + cases + 'cases.');
+				thisDay.push(cases);
 			}
-		console.log(dataArray);
-		drawChart(dataArray);
+			dataArray.push(thisDay);
 		}
-		getData(countryList, countryData, dataArray);
+	
+		console.log(dataArray);
+		drawChart(dataArray, countryList);
+	
 	})
 
-	.charts.setOnLoadCallback(getData);
-
+	
 </script>
 
 </html>
