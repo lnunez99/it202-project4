@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-    <title>repl.it</title>
+    <title>Coronavirus Stats</title>
     <link href="https://unpkg.com/material-components-web@v4.0.0/dist/material-components-web.min.css" rel="stylesheet">
     <script src="https://unpkg.com/material-components-web@v4.0.0/dist/material-components-web.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
@@ -129,24 +129,16 @@
         });
         chart.update();
     }
-	// This modified function was provided at https://www.chartjs.org/docs/latest/developers/updates.html
-    function removeData(chart) {
-        chart.data.labels.pop();
-        chart.data.datasets.forEach((dataset) => {
-            dataset.data.pop();
-        });
-        chart.update();
-    }
 	// This function was provided at https://www.chartjs.org/docs/latest/
 	// I modified it to take two arrays, remove the default data, and then add the data from said arrays.
     const displayData = (context, numbersArray, countriesArray) => {
         let myChart = new Chart(context, {
             type: 'bar',
             data: {
-                labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                labels: [],
                 datasets: [{
                     label: 'Total Cases',
-                    data: [12, 19, 3, 5, 2, 3],
+                    data: [],
                     backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)', 'rgba(75, 192, 192, 0.2)', 'rgba(153, 102, 255, 0.2)', 'rgba(255, 159, 64, 0.2)'],
                     borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)'],
                     borderWidth: 1
@@ -162,9 +154,6 @@
                 }
             }
         });
-		
-		// Clear the values and labels.
-        removeData(myChart);
 		// Add new data.
         for(let i = 0; i < numbersArray.length; i++) {
             addData(myChart, countriesArray[i], numbersArray[i]);
@@ -331,10 +320,7 @@
      
 		gChart.style.display = "none";
         
-		if (countryList.length != 0)
-		{
-			canvas.style.display = "block";
-		}
+		canvas.style.display = "block";
         
 		pageOneControls.style.display = "block";
         
