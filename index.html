@@ -54,7 +54,7 @@
             <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">
                 <button id="page1" class="material-icons mdc-top-app-bar__action-item mdc-icon-button" aria-label="Display Chart">bar_chart</button>
                 <button id="page2" class="material-icons mdc-top-app-bar__action-item mdc-icon-button" aria-label="Display Table">grid_on</button>
-                <button id="page3" class="material-icons mdc-top-app-bar__action-item mdc-icon-button" aria-label="Show Map">location_on</button>
+                <button id="page3" class="material-icons mdc-top-app-bar__action-item mdc-icon-button" aria-label="Show Map">show_chart</button>
             </section>
         </div>
     </header>
@@ -64,7 +64,7 @@
 
         <div id="topPageText">
             <h1 style="font-family:sans-serif;">Displaying a chart.</h1>
-            <p style="font-family:sans-serif;">Select and submit a maximum of five countries. Then hit the display button. (Confirmed Cases right now)</p>
+            <p style="font-family:sans-serif;">Select and submit a maximum of five countries. Then hit the display button.</p>
         </div>
 
 		<!-- Datalist and submit button. -->
@@ -93,7 +93,15 @@
             <div>
                 <button class="mdc-button">
                     <div class="mdc-button__ripple" id="displayButton"></div>
-                    <span class="mdc-button__label">Display Total Cases</span>
+                    <span class="mdc-button__label">Total Cases</span>
+                </button>
+			            <button class="mdc-button">
+                    <div class="mdc-button__ripple" id="displayDeaths"></div>
+                    <span class="mdc-button__label">Total Deaths</span>
+                </button>
+				            <button class="mdc-button">
+                    <div class="mdc-button__ripple" id="displayRec"></div>
+                    <span class="mdc-button__label">Total Recovered</span>
                 </button>
             </div>
         </div>
@@ -131,13 +139,13 @@
     }
 	// This function was provided at https://www.chartjs.org/docs/latest/
 	// I modified it to take two arrays, remove the default data, and then add the data from said arrays.
-    const displayData = (context, numbersArray, countriesArray) => {
+    const displayData = (context, numbersArray, countriesArray, label) => {
         let myChart = new Chart(context, {
             type: 'bar',
             data: {
                 labels: [],
                 datasets: [{
-                    label: 'Total Cases',
+                    label: label,
                     data: [],
                     backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)', 'rgba(75, 192, 192, 0.2)', 'rgba(153, 102, 255, 0.2)', 'rgba(255, 159, 64, 0.2)'],
                     borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)'],
@@ -169,6 +177,12 @@
     // Data storage for first page.
     let pageOneTotalCasesList = [];
     let pageOneTotalConfirmed = 0;
+
+	let totalDeathsArray = [];
+	let totalDeaths = 0;
+	
+	let totalRecoveredArray = [];
+	let totalRecovered = 0;
     // Data storage for second page.
     let datesList = [];
     let daysCases = [];
@@ -251,8 +265,9 @@
             
 			let chosenCountry = textBox.value;
             
-			let chosenCountryDeaths = 0;
-            
+			totalDeaths = 0;
+			pageOneTotalConfirmed = 0;
+			totalRecovered = 0;
 			if(chosenCountry != "") 
 			{
                 length = countryData[chosenCountry].length;
@@ -274,7 +289,7 @@
 					
                     // Update the value
                     clone.querySelector(".mdc-list-item__primary-text").textContent = chosenCountry;
-                    clone.querySelector(".mdc-list-item__secondary-text").textContent = chosenCountry + "'s most recent data.";
+                    clone.querySelector(".mdc-list-item__secondary-text").textContent = chosenCountry + "'s most recent data. Emoji coming soon.";
 					
                     // Append to list.
                     document.querySelector("div#data ul.mdc-list").appendChild(clone);
@@ -282,21 +297,46 @@
 					// Tally up the total number of cases.
                     for(item of countryData[chosenCountry]) 
 					{
-						pageOneTotalConfirmed = pageOneTotalConfirmed + item['confirmed'];
-                    }
-					
+						pageOneTotalConfirmed = item['confirmed'];
+						totalDeaths = item['deaths'];
+						totalRecovered = item['recovered'];
+						console.log(chosenCountry + "Deaths are " + totalDeaths);
+						console.log(chosenCountry + "Cases are " + pageOneTotalConfirmed);
+                    }					
 					// Add to the list.
                     pageOneTotalCasesList.push(pageOneTotalConfirmed);
+					totalDeathsArray.push(totalDeaths)
+					totalRecoveredArray.push(totalRecovered);
                 }
             }
         })
 	/*-------------------- DISPLAY CHART --------------------*/
 		
         let displayButton = document.querySelector("#displayButton");
-        
-		displayButton.addEventListener("click", event => {            
-			displayData(canvas, pageOneTotalCasesList, countryList);
+		
+		let displayDeaths = document.querySelector("#displayDeaths");
+		
+		let displayRec = document.querySelector("#displayRec");
+		
+		displayButton.addEventListener("click", event => {
+			ctx.clearRect(0, 0, canvas.width, canvas.width);
+			let label = "Total Cases";
+			displayData(canvas, pageOneTotalCasesList, countryList, label);
         })
+		
+		displayDeaths.addEventListener("click", event => {    
+			let label2 = "Total Deaths";
+			ctx.clearRect(0, 0, canvas.width, canvas.width);
+			displayData(canvas, totalDeathsArray, countryList, label2);
+        })
+		
+		displayRec.addEventListener("click", event => {    
+			let label3 = "Total Recovered";
+			ctx.clearRect(0, 0, canvas.width, canvas.width);
+			displayData(canvas, totalRecoveredArray, countryList, label3);
+        })
+		
+		
     })
     /*-------------------- NAVIGATION --------------------*/
     let pageOneControls = document.querySelector("#pageOneDisplay");
@@ -350,9 +390,9 @@
         
 		pageOneControls.style.visibility = "hidden";
         
-		topPageText.lastElementChild.textContent = "Showing your each of your countries' confirmed cases up to the most recent day.";
+		topPageText.lastElementChild.textContent = "Showing your each of your countries' confirmed cases in a table. (Will eventually show recovered or deaths depending on user's choice.)";
         
-		topPageText.firstElementChild.textContent = "Displaying a data table."
+		topPageText.firstElementChild.textContent = "Total Cases Table."
         
 		let header = document.querySelector("#Headers");
         
@@ -371,12 +411,12 @@
 				headerArray.push(country);
             }
         }
-        for(let i = 0; i < length; i++) {
+        for(let i = length-1; i >= 0; i--) {
             
 			let newR = document.createElement("tr");
             
 			let newTD = document.createElement("td");
-            
+            console.log("i is " + i)
 			newTD.textContent = countryData["Afghanistan"][i]['date'];
             
 			newR.appendChild(newTD);
@@ -413,9 +453,9 @@
         
 		pageOneControls.style.visibility = "hidden";
         
-		topPageText.lastElementChild.textContent = "Showing your each of your countries' confirmed cases up to the most recent day.";
+		topPageText.lastElementChild.textContent = "Showing your each of your countries' confirmed cases to date. (Will eventually show recovered or deaths depending on user's choice.)";
         
-		topPageText.firstElementChild.textContent = "Displaying a Google Chart."
+		topPageText.firstElementChild.textContent = "Total Cases Google Chart."
         
 		let dataArray = [];
         for(let i = 0; i < length; i++) {
