@@ -63,7 +63,7 @@
     <main class="mdc-top-app-bar--fixed-adjust description">
 
         <div id="topPageText">
-            <h1 style="font-family:sans-serif;">Displaying a chart.</h1>
+            <h1 style="font-family:sans-serif;">Displaying a Bar Chart.</h1>
             <p style="font-family:sans-serif;">Select and submit a maximum of five countries. Then hit the display button.</p>
         </div>
 
@@ -330,9 +330,9 @@
 			displayData(canvas, totalDeathsArray, countryList, label2);
         })
 		
-		displayRec.addEventListener("click", event => {    
-			let label3 = "Total Recovered";
+		displayRec.addEventListener("click", event => { 
 			ctx.clearRect(0, 0, canvas.width, canvas.width);
+			let label3 = "Total Recovered";
 			displayData(canvas, totalRecoveredArray, countryList, label3);
         })
 		
