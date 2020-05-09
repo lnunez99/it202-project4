@@ -26,20 +26,30 @@
         .template {
             display: none;
         }
-        .mdc-data-table {
-            visibility: hidden;
-        }
-        th, tr, td {
-            padding: 15px;
-            text-align: center;
-            border: 2px solid blue;
-            border-collapse: collapse;
-        }
-		/* Make the table hidden at the start. */
-        table {
-            visibility: hidden;
-            border-collapse: collapse;
-        }
+		.mdc-data-table__table, tr, td, table {
+			border: 2;
+		  border-collapse: collapse;
+		}
+		.mdc-data-table__row {
+			border-top-width: 1px;
+			border-top-style: solid;
+		}
+.mdc-data-table__cell, td.mdc-data-table__cell--numeric {
+    font-family: Roboto, sans-serif;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+    font-size: 1rem;
+    line-height: 1.25rem;
+    font-weight: 400;
+    letter-spacing: .0178571429em;
+    text-decoration: inherit;
+    text-transform: inherit;
+    box-sizing: border-box;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    padding: 20px;
+	text-align: left;
+}
     </style>
 
 </head>
@@ -49,7 +59,7 @@
     <header class="mdc-top-app-bar">
         <div class="mdc-top-app-bar__row">
             <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
-                <span class="mdc-top-app-bar__title">Project 4: Coronavirus</span>
+                <span class="mdc-top-app-bar__title">Project 4: El virus</span>
             </section>
             <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">
                 <button id="page1" class="material-icons mdc-top-app-bar__action-item mdc-icon-button" aria-label="Display Chart">bar_chart</button>
@@ -63,8 +73,8 @@
     <main class="mdc-top-app-bar--fixed-adjust description">
 
         <div id="topPageText">
-            <h1 style="font-family:sans-serif;">Displaying a Bar Chart.</h1>
-            <p style="font-family:sans-serif;">Select and submit a maximum of five countries. Then hit the display button.</p>
+            <h1 style="font-family:sans-serif;">Bar Graphs.</h1>
+            <p style="font-family:sans-serif;">Select and submit a maximum of five countries. Then click/tap the display button.</p>
         </div>
 
 		<!-- Datalist and submit button. -->
@@ -113,12 +123,18 @@
 	<div id="curve_chart" style="width: 900px; height: 500px"></div>
 
 	<!-- Data Table. -->
-    <table id="table">
-        <tr id="Headers">
-            <th>Date</th>
-        </tr>
-    </table>
+<div class="mdc-data-table" style="display: none">
+  <table class="mdc-data-table__table" aria-label="Dessert calories">
+    <thead>
+      <tr class="mdc-data-table__header-row">
+        <th class="mdc-data-table__header-cell" role="columnheader" scope="col">Date</th>
+      </tr>
+    </thead>
+    <tbody class="mdc-data-table__content">
 
+    </tbody>
+  </table>
+</div>
 	<!-- Canvas for Chart.js. -->
     <canvas id="myChart" width="100" height="100"></canvas>
 
@@ -340,6 +356,8 @@
     })
     /*-------------------- NAVIGATION --------------------*/
     let pageOneControls = document.querySelector("#pageOneDisplay");
+	
+	let TABLE = document.querySelector(".mdc-data-table");
     
 	let topPageText = document.querySelector("#topPageText");
     
@@ -360,17 +378,18 @@
      
 		gChart.style.display = "none";
         
-		canvas.style.display = "block";
+		if (countryList.length != 0)
+			canvas.style.display = "block";
         
 		pageOneControls.style.display = "block";
         
 		pageOneControls.style.visibility = "visible";
         
-		table.style.display = "none";
+		TABLE.style.display = "none";
         
 		topPageText.lastElementChild.textContent = "Select and submit a maximum of five countries. Then hit the display button. (Confirmed Cases right now).";
         
-		topPageText.firstElementChild.textContent = "Displaying a chart."
+		topPageText.firstElementChild.textContent = "Bar Graphs"
         
 		displayData(canvas, pageOneTotalCasesList, countryList);
     })
@@ -389,12 +408,14 @@
 		pageOneControls.style.display = "none";
         
 		pageOneControls.style.visibility = "hidden";
+	
         
 		topPageText.lastElementChild.textContent = "Showing your each of your countries' confirmed cases in a table. (Will eventually show recovered or deaths depending on user's choice.)";
         
-		topPageText.firstElementChild.textContent = "Total Cases Table."
+		topPageText.firstElementChild.textContent = "Total Cases Table"
         
-		let header = document.querySelector("#Headers");
+		let header = document.querySelector(".mdc-data-table__header-row");
+		let tblr = document.querySelector(".mdc-data-table__content");
         
         for(country of countryList) 
 		{
@@ -403,6 +424,7 @@
 			if(!bool2) {
 				
 				let newH = document.createElement("th");
+				newH.classList.add("mdc-data-table__header-cell");
                 
 				newH.textContent = country;
                 
@@ -414,8 +436,10 @@
         for(let i = length-1; i >= 0; i--) {
             
 			let newR = document.createElement("tr");
+			newR.classList.add("mdc-data-table__row");
             
 			let newTD = document.createElement("td");
+			newTD.classList.add("mdc-data-table__cell--numeric");
             console.log("i is " + i)
 			newTD.textContent = countryData["Afghanistan"][i]['date'];
             
@@ -425,18 +449,20 @@
 			{
                 
 				let otherTD = document.createElement("td");
+				otherTD.classList.add("mdc-data-table__cell--numeric");
+
                 
 				otherTD.textContent = countryData[country][i]['confirmed'];
                 
 				newR.appendChild(otherTD);
             }
-            table.appendChild(newR);
+            tblr.appendChild(newR);
         }
 		
         // Show table
-        table.style.visibility = "visible";
+//         table.style.visibility = "visible";
         
-		table.style.display = "block";
+		TABLE.style.display = "block";
     })
 	
     p3Button.addEventListener("click", event => {
@@ -447,7 +473,8 @@
         
 		gChart.style.display = "block";
         
-		table.style.display = "none";
+// 		table.style.display = "none";
+		TABLE.style.display = "none";
         
 		pageOneControls.style.display = "none";
         
@@ -455,7 +482,7 @@
         
 		topPageText.lastElementChild.textContent = "Showing your each of your countries' confirmed cases to date. (Will eventually show recovered or deaths depending on user's choice.)";
         
-		topPageText.firstElementChild.textContent = "Total Cases Google Chart."
+		topPageText.firstElementChild.textContent = "Total Cases Line Chart"
         
 		let dataArray = [];
         for(let i = 0; i < length; i++) {
