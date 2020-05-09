@@ -219,7 +219,7 @@
     google.charts.load('current', {
         'packages': ['corechart']
     });
-    drawChart = (rowData, countryList) => 
+    drawChart = (rowData, countryList, header) => 
 	{
         let data = new google.visualization.DataTable();
 		
@@ -234,8 +234,12 @@
 		// Since every element in the rowData array is a n-tuple (where n is the #of countries), looping through the array is sufficient.
         data.addRows(rowData);
 		
+		if (header == 'confirmed')
+		{
+			header = "confirmed cases";
+		}
         let options = {
-            title: 'Number of Confirmed Coronavirus Cases Per Day',
+            title: 'Number of ' + header,
             curveType: 'function',
             legend: {
                 position: 'bottom'
@@ -390,7 +394,7 @@
         
 		TABLE.style.display = "none";
         
-		topPageText.lastElementChild.textContent = "Select and submit a maximum of five countries. Then hit the display button. (Confirmed Cases right now).";
+		topPageText.lastElementChild.textContent = "Select and submit a maximum of five countries. Then click/tap the display button.";
         
 		topPageText.firstElementChild.textContent = "Bar Graphs"
         
@@ -419,9 +423,10 @@
         
 		pageOneControls.style.visibility = "hidden";
 	
-        
-		topPageText.lastElementChild.textContent = "Showing your each of your countries' confirmed cases in a table. (Will eventually show recovered or deaths depending on user's choice.)";
-        
+        if (userChoice == 'confirmed')
+			topPageText.lastElementChild.textContent = "Showing each of your countries' total " + userChoice+ " cases";
+		
+        topPageText.lastElementChild.textContent = "Showing each of your countries' total " + userChoice;
 		topPageText.firstElementChild.textContent = "Total Cases Table"
         
 		let header = document.querySelector(".mdc-data-table__header-row");
@@ -489,7 +494,7 @@
         
 		pageOneControls.style.visibility = "hidden";
         
-		topPageText.lastElementChild.textContent = "Showing your each of your countries' confirmed cases to date. (Will eventually show recovered or deaths depending on user's choice.)";
+		topPageText.lastElementChild.textContent = "Showing each of your countries' total " + userChoice + " to date";
         
 		topPageText.firstElementChild.textContent = "Total Cases Line Chart"
         
@@ -511,7 +516,7 @@
             }
             dataArray.push(thisDay);
         }
-        drawChart(dataArray, countryList);
+        drawChart(dataArray, countryList, userChoice);
     })
 </script>
 
