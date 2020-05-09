@@ -73,7 +73,7 @@
     <main class="mdc-top-app-bar--fixed-adjust description">
 
         <div id="topPageText">
-            <h1 style="font-family:sans-serif;">Bar Graphs.</h1>
+            <h1 style="font-family:sans-serif;">Bar Graphs</h1>
             <p style="font-family:sans-serif;">Select and submit a maximum of five countries. Then click/tap the display button.</p>
         </div>
 
@@ -124,7 +124,7 @@
 
 	<!-- Data Table. -->
 <div class="mdc-data-table" style="display: none">
-  <table class="mdc-data-table__table" aria-label="Dessert calories">
+  <table class="mdc-data-table__table">
     <thead>
       <tr class="mdc-data-table__header-row">
         <th class="mdc-data-table__header-cell" role="columnheader" scope="col">Date</th>
@@ -207,6 +207,9 @@
     let apiEndPoint = "https://pomber.github.io/covid19/timeseries.json";
     let table = document.querySelector("#table");
     let welcomeText = document.querySelector(".description");
+	
+	//
+	let userChoice = "";
     /*-------------------- FETCH AND BUILD --------------------*/
 	
 	
@@ -288,7 +291,6 @@
 			{
                 length = countryData[chosenCountry].length;
                 
-				console.log("Length is " + length);
 				
                 // Clone template
                 let clone = document.querySelector("div#data li.template").cloneNode(true);
@@ -316,8 +318,6 @@
 						pageOneTotalConfirmed = item['confirmed'];
 						totalDeaths = item['deaths'];
 						totalRecovered = item['recovered'];
-						console.log(chosenCountry + "Deaths are " + totalDeaths);
-						console.log(chosenCountry + "Cases are " + pageOneTotalConfirmed);
                     }					
 					// Add to the list.
                     pageOneTotalCasesList.push(pageOneTotalConfirmed);
@@ -338,18 +338,21 @@
 			ctx.clearRect(0, 0, canvas.width, canvas.width);
 			let label = "Total Cases";
 			displayData(canvas, pageOneTotalCasesList, countryList, label);
+			userChoice = "confirmed";
         })
 		
 		displayDeaths.addEventListener("click", event => {    
 			let label2 = "Total Deaths";
 			ctx.clearRect(0, 0, canvas.width, canvas.width);
 			displayData(canvas, totalDeathsArray, countryList, label2);
+			userChoice = "deaths";
         })
 		
 		displayRec.addEventListener("click", event => { 
 			ctx.clearRect(0, 0, canvas.width, canvas.width);
 			let label3 = "Total Recovered";
 			displayData(canvas, totalRecoveredArray, countryList, label3);
+			userChoice = "recovered";
         })
 		
 		
@@ -396,6 +399,13 @@
     
 	p2Button.addEventListener("click", event => {
     
+// 		TABLE.lastElementChild.innerHTML = "";
+		console.log(TABLE.lastElementChild.lastElementChild);
+		while( TABLE.lastElementChild.lastElementChild.hasChildNodes() )
+		{
+			TABLE.lastElementChild.lastElementChild.removeChild(TABLE.lastElementChild.lastElementChild.childNodes[0]);
+			console.log("Removing " +TABLE.lastElementChild.lastElementChild.childNodes[0] )
+		}
 		// Clear canvas and display the table.
 		canvas.style.display = "none";
         
@@ -440,7 +450,6 @@
             
 			let newTD = document.createElement("td");
 			newTD.classList.add("mdc-data-table__cell--numeric");
-            console.log("i is " + i)
 			newTD.textContent = countryData["Afghanistan"][i]['date'];
             
 			newR.appendChild(newTD);
@@ -452,7 +461,7 @@
 				otherTD.classList.add("mdc-data-table__cell--numeric");
 
                 
-				otherTD.textContent = countryData[country][i]['confirmed'];
+				otherTD.textContent = countryData[country][i][userChoice];
                 
 				newR.appendChild(otherTD);
             }
@@ -495,15 +504,13 @@
                 
 				let date = countryData[country][i]['date'];
                 
-				let cases = countryData[country][i]['confirmed'];
+				let cases = countryData[country][i][userChoice];
                 
-				console.log('Grabbing ' + country + 'on' + date + 'with ' + cases + 'cases.');
                 
 				thisDay.push(cases);
             }
             dataArray.push(thisDay);
         }
-        console.log(dataArray);
         drawChart(dataArray, countryList);
     })
 </script>
